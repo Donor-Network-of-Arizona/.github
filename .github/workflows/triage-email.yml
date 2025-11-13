@@ -19,7 +19,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out reusable workflow repository
+        uses: actions/checkout@v4
+        with:
+          repository: Donor-Network-of-Arizona/.github
+          path: gh-reusable-repo
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -36,5 +40,6 @@ jobs:
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           ALERT_TO_EMAIL: ${{ secrets.ALERT_TO_EMAIL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
-        run: node .github/scripts/send-triage-email.js
+        run: node gh-reusable-repo/.github/scripts/send-triage-email.js
