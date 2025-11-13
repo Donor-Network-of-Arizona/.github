@@ -1,54 +1,37 @@
-name: Notify on new status:triage issues (reusable)
+name: Notify on new status:triage issues
 
 on:
-  workflow_call:
-    secrets:
-      SMTP_SERVER:
-        required: true
-      SMTP_PORT:
-        required: true
-      SMTP_USERNAME:
-        required: true
-      SMTP_PASSWORD:
-        required: true
-      ALERT_FROM_EMAIL:
-        required: true
-      ALERT_TO_EMAIL:
-        required: true
+  issues:
+    types:
+      - opened
+      - labeled
 
 jobs:
   send-triage-email:
+    if: >
+      (github.event.action == 'opened' &&
+       contains(join(github.event.issue.labels.*.name, ','), 'status: triage'))
+      ||
+      (github.event.action == 'labeled' &&
+       github.event.label.name == 'status: triage')
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send email
-        uses: dawidd6/action-send-mail@v3
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          server_address: mail.authsmtp.com
-          server_port: 465
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          from: innovate@dnaz.org
-          to: awren@dnaz.org
-          secure: true
-          subject: >
-            [Triage] New issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
-          html_body: |
-            <h2>New triage issue in <code>${{ github.repository }}</code></h2>
+          node-version: 20
 
-            <p><strong>Title:</strong> ${{ github.event.issue.title }}</p>
-            <p><strong>Number:</strong> #${{ github.event.issue.number }}</p>
+      - name: Install nodemailer
+        run: npm install nodemailer
 
-            <p><strong>Labels:</strong>
-              ${{ join(github.event.issue.labels.*.name, ', ') }}
-            </p>
-
-            <p><strong>Link:</strong>
-              <a href="${{ github.event.issue.html_url }}">View on GitHub</a>
-            </p>
-
-            <hr />
-            <p><strong>Description:</strong></p>
-            <pre style="white-space:pre-wrap;font-family:monospace;">
-              ${{ github.event.issue.body }}
-            </pre>
+      - name: Send triage email via AuthSMTP
+        env:
+          SMTP_SERVER: mail.authsmtp.com
+          SMTP_PORT: 587
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          ALERT_TO_EMAIL: ${{ secrets.ALERT_TO_EMAIL }}
+        run: node .github/scripts/send-triage-email.js
