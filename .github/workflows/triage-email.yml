@@ -30,7 +30,7 @@ jobs:
           password: ${{ secrets.SMTP_PASSWORD }}
           from: ${{ secrets.ALERT_FROM_EMAIL }}
           to: ${{ secrets.ALERT_TO_EMAIL }}
-          secure: true
+          secure: false
           subject: >
             [Triage] New issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
           html_body: |
