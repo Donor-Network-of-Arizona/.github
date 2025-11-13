@@ -25,12 +25,12 @@ jobs:
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: mail.authsmtp.com
-          server_port: 587
+          server_port: 465
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           from: innovate@dnaz.org
           to: awren@dnaz.org
-          secure: false
+          secure: true
           subject: >
             [Triage] New issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
           html_body: |
