@@ -1,4 +1,4 @@
-name: Notify on new status:triage issues
+name: Notify on new status:triage issues (reusable)
 
 on:
   workflow_call:
@@ -11,19 +11,11 @@ on:
         required: true
       SMTP_PASSWORD:
         required: true
-      ALERT_FROM_EMAIL:
-        required: true
       ALERT_TO_EMAIL:
         required: true
 
 jobs:
   send-triage-email:
-    if: >
-      (github.event.action == 'opened' &&
-       contains(join(github.event.issue.labels.*.name, ','), 'status: triage'))
-      ||
-      (github.event.action == 'labeled' &&
-       github.event.label.name == 'status: triage')
     runs-on: ubuntu-latest
 
     steps:
@@ -39,9 +31,10 @@ jobs:
 
       - name: Send triage email via AuthSMTP
         env:
-          SMTP_SERVER: mail.authsmtp.com
-          SMTP_PORT: 587
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           ALERT_TO_EMAIL: ${{ secrets.ALERT_TO_EMAIL }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: node .github/scripts/send-triage-email.js
