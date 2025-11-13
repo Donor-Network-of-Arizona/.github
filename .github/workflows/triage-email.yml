@@ -1,10 +1,20 @@
 name: Notify on new status:triage issues
 
 on:
-  issues:
-    types:
-      - opened
-      - labeled
+  workflow_call:
+    secrets:
+      SMTP_SERVER:
+        required: true
+      SMTP_PORT:
+        required: true
+      SMTP_USERNAME:
+        required: true
+      SMTP_PASSWORD:
+        required: true
+      ALERT_FROM_EMAIL:
+        required: true
+      ALERT_TO_EMAIL:
+        required: true
 
 jobs:
   send-triage-email:
