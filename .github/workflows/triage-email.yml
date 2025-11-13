@@ -1,4 +1,3 @@
-# Donor-Network-of-Arizona/.github/.github/workflows/triage-email.yml
 name: Notify on new status:triage issues (reusable)
 
 on:
@@ -39,7 +38,6 @@ jobs:
 
             <p><strong>Title:</strong> ${{ github.event.issue.title }}</p>
             <p><strong>Number:</strong> #${{ github.event.issue.number }}</p>
-            
 
             <p><strong>Labels:</strong>
               ${{ join(github.event.issue.labels.*.name, ', ') }}
@@ -52,5 +50,5 @@ jobs:
             <hr />
             <p><strong>Description:</strong></p>
             <pre style="white-space:pre-wrap;font-family:monospace;">
-${{ github.event.issue.body }}
+              ${{ github.event.issue.body }}
             </pre>
