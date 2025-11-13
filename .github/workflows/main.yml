@@ -1,0 +1,56 @@
+# Donor-Network-of-Arizona/.github/.github/workflows/triage-email.yml
+name: Notify on new status:triage issues (reusable)
+
+on:
+  workflow_call:
+    secrets:
+      SMTP_SERVER:
+        required: true
+      SMTP_PORT:
+        required: true
+      SMTP_USERNAME:
+        required: true
+      SMTP_PASSWORD:
+        required: true
+      ALERT_FROM_EMAIL:
+        required: true
+      ALERT_TO_EMAIL:
+        required: true
+
+jobs:
+  send-triage-email:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          from: ${{ secrets.ALERT_FROM_EMAIL }}
+          to: ${{ secrets.ALERT_TO_EMAIL }}
+          secure: true
+          subject: >
+            [Triage] New issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
+          html_body: |
+            <h2>New triage issue in <code>${{ github.repository }}</code></h2>
+
+            <p><strong>Title:</strong> ${{ github.event.issue.title }}</p>
+            <p><strong>Number:</strong> #${{ github.event.issue.number }}</p>
+            
+
+            <p><strong>Labels:</strong>
+              ${{ join(github.event.issue.labels.*.name, ', ') }}
+            </p>
+
+            <p><strong>Link:</strong>
+              <a href="${{ github.event.issue.html_url }}">View on GitHub</a>
+            </p>
+
+            <hr />
+            <p><strong>Description:</strong></p>
+            <pre style="white-space:pre-wrap;font-family:monospace;">
+${{ github.event.issue.body }}
+            </pre>
